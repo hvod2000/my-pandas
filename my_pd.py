@@ -72,6 +72,8 @@ def stringify_column(elements: Iterable, typ: Dtype = DTYPES[object]):
     if typ == DTYPES[float]:
         width = min(6, max(len(str(x).split(".")[1]) for x in elements))
         elems = [f"{x:.{width}f}" for x in elements]
+        if any(len(x) >= 12 for x in elems):
+            elems = [f"{x:e}" for x in elements]
     else:
         elems = tuple(map(str, elements))
     width = max(map(len, elems))

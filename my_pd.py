@@ -1,3 +1,4 @@
+import math
 from collections.abc import Iterable
 
 SUPPORTED_TYPES = {
@@ -47,6 +48,9 @@ class Series:
             + (f"Name: {self.name}, " if self.name != None else "")
             + f"dtype: {SUPPORTED_TYPES[self.dtype]}"
         )
+
+    def max(self):
+        return max(self.data, default=math.nan)
 
 
 class DataFrame:

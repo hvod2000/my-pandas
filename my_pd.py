@@ -78,3 +78,10 @@ class DataFrame:
             row = (cell.rjust(w) for w, cell in zip(widths, row))
             result.append(str(i).rjust(index_width) + "  " + "  ".join(row))
         return "\n".join(result)
+
+    def __getitem__(self, key):
+        try:
+            i = self.columns.index(key)
+            return Series(self.data[i], dtype=self.dtype[i], name=key)
+        except ValueError:
+            raise KeyError(key)

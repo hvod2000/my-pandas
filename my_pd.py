@@ -10,14 +10,17 @@ SUPPORTED_TYPES = {
 }
 
 
-def least_common_supertype(elements: Iterable):
-    lcs_index, supported_types = -1, tuple(reversed(SUPPORTED_TYPES.keys()))
-    for x in (x for x in elements if x != None):
-        for typ_index, typ in enumerate(supported_types):
-            if isinstance(x, typ):
-                break
-        lcs_index = max(lcs_index, typ_index)
-    return supported_types[lcs_index]
+def least_common_superclass(types):
+    if len(types) == 1:
+        return next(iter(types))
+    return float if set(types) == {float, int} else object
+
+
+def least_common_type(elements: Iterable):
+    return least_common_superclass({
+        next(t for t in (bool, int, float, object) if isinstance(x, t))
+        for x in (math.nan if x is None else x for x in elements)
+    })
 
 
 def stringify_elements(elements: Iterable):
@@ -40,7 +43,7 @@ class Series:
             raise NotImplementedError()
         self.name = name
         self.data = tuple(data) if not isinstance(data, str) else (data,)
-        self.dtype = dtype if dtype != None else least_common_supertype(data)
+        self.dtype = dtype if dtype != None else least_common_type(data)
 
     def __repr__(self):
         columns = map(stringify_elements, (range(len(self.data)), self.data))
@@ -67,7 +70,7 @@ class DataFrame:
                 raise NotImplementedError()
         self.columns = columns
         self.data = data
-        self.dtype = [least_common_supertype(column) for column in data]
+        self.dtype = [least_common_type(column) for column in data]
         self.shape = (len(columns), len(data[0]))
 
     def __repr__(self):

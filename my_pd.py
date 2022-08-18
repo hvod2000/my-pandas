@@ -2,11 +2,24 @@ import math
 import pathlib
 from collections.abc import Iterable
 
-SUPPORTED_TYPES = {
-    object: "object",
-    float: "float64",
-    int: "int64",
-    bool: "bool",
+
+class Dtype:
+    def __init__(self, name, representational_string=None):
+        self.name = name
+        self.repr = representational_string or name
+
+    def __repr__(self):
+        return f"dtype('{self.repr}')"
+
+    def __str__(self):
+        return self.name
+
+
+DTYPES = {
+    object: Dtype("object", "O"),
+    float: Dtype("float64"),
+    int: Dtype("int64"),
+    bool: Dtype("bool"),
 }
 
 PARSERS = {
@@ -17,10 +30,10 @@ PARSERS = {
 }
 
 TYPE_CONVERTERS = {
-    object: lambda x: x,
-    float: lambda s: (math.nan if s == None else float(s)),
-    int: int,
-    bool: bool,
+    DTYPES[object]: lambda x: x,
+    DTYPES[float]: lambda s: (math.nan if s == None else float(s)),
+    DTYPES[int]: int,
+    DTYPES[bool]: bool,
 }
 
 
@@ -74,15 +87,16 @@ class Series:
             raise NotImplementedError()
         data = tuple(data) if not isinstance(data, str) else (data,)
         self.name = name
-        self.dtype = dtype if dtype != None else least_common_type(data)
+        self.dtype = DTYPES.get(dtype or least_common_type(data), dtype)
         self.data = [TYPE_CONVERTERS[self.dtype](x) for x in data]
 
     def __repr__(self):
-        columns = map(stringify_elements, (range(len(self.data)), self.data))
+        indexes = stringify_elements(range(len(self.data)))
+        values = stringify_elements(self.data)
         return (
-            "".join("    ".join(row) + "\n" for row in zip(*columns))
+            "".join("    ".join(row) + "\n" for row in zip(indexes, values))
             + (f"Name: {self.name}, " if self.name != None else "")
-            + f"dtype: {SUPPORTED_TYPES[self.dtype]}"
+            + f"dtype: {self.dtype}"
         )
 
     def max(self):
@@ -102,7 +116,7 @@ class DataFrame:
                 raise NotImplementedError()
         self.columns = columns
         self.data = data
-        self.dtype = [least_common_type(column) for column in data]
+        self.dtypes = [DTYPES[least_common_type(column)] for column in data]
         self.shape = (len(columns), len(data[0]))
 
     def __repr__(self):
@@ -110,8 +124,8 @@ class DataFrame:
         # HACK#1: bug of small padding between string columns requires
         #         small paddings between inside header if dtype is obj
         widths = [
-            max(max(map(len, content)), len(head) - (typ == object)) + 2
-            for head, content, typ in zip(self.columns, content, self.dtype)
+            max(max(map(len, content)), len(head) - (typ == DTYPES[object])) + 2
+            for head, content, typ in zip(self.columns, content, self.dtypes)
         ]
         header = (head.rjust(w) for w, head in zip(widths, self.columns))
         index_width = len(str(self.shape[1]))
@@ -124,7 +138,7 @@ class DataFrame:
     def __getitem__(self, key):
         try:
             i = self.columns.index(key)
-            return Series(self.data[i], dtype=self.dtype[i], name=key)
+            return Series(self.data[i], dtype=self.dtypes[i], name=key)
         except ValueError:
             raise KeyError(key)
 

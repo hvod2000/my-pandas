@@ -18,6 +18,36 @@ def least_common_supertype(elements: Iterable):
     return supported_types[lcs_index]
 
 
+def stringify_elements(elements: Iterable):
+    elems = tuple(map(str, elements))
+    width = max(map(len, elems))
+    return [x.rjust(width) for x in elems]
+
+
+class Series:
+    def __init__(
+        self,
+        data=None,
+        index=None,
+        dtype=None,
+        name=None,
+        copy=None,
+        fastpath=None,
+    ):
+        if any(field != None for field in (index, name, copy, fastpath)):
+            raise NotImplementedError()
+        self.data = tuple(data)
+        self.dtype = dtype if dtype != None else least_common_supertype(data)
+
+    def __repr__(self):
+        columns = map(stringify_elements, (range(len(self.data)), self.data))
+        return (
+            "\n".join("    ".join(row) for row in zip(*columns))
+            + "\ndtype: "
+            + SUPPORTED_TYPES[self.dtype]
+        )
+
+
 class DataFrame:
     def __init__(
         self, data=None, index=None, columns=None, dtype=None, copy=None

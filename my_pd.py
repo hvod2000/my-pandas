@@ -16,11 +16,28 @@ def least_common_superclass(types):
     return float if set(types) == {float, int} else object
 
 
-def least_common_type(elements: Iterable):
-    return least_common_superclass({
+def types(elements: Iterable):
+    return {
         next(t for t in (bool, int, float, object) if isinstance(x, t))
         for x in (math.nan if x is None else x for x in elements)
-    })
+    }
+
+
+def least_common_type(elements: Iterable):
+    return least_common_superclass(types(elements))
+
+
+def guess_type(s: str):
+    if s in ("True", "False"):
+        return bool
+    typ = object
+    try:
+        for t in (float, int):
+            t(s)
+            typ = t
+    except:
+        pass
+    return typ
 
 
 def stringify_elements(elements: Iterable):
@@ -103,5 +120,10 @@ def read_csv(filepath: str | pathlib.Path, **kwargs):
     rows = pathlib.Path(filepath).read_text().strip().split("\n")
     rows = [[x or "NaN" for x in r.split(",")] for r in rows]
     header, data = rows[0], rows[1:]
-    d = {h: [row[i] for row in data] for i, h in enumerate(header)}
+    data = [[r[i] for r in data] for i in range(len(header))]
+    dtypes = [least_common_superclass(set(map(guess_type, r))) for r in data]
+    d = {
+        header: list(map(str if typ is object else typ, column))
+        for header, typ, column in zip(header, dtypes, data)
+    }
     return DataFrame(d)

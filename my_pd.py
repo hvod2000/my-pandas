@@ -125,8 +125,8 @@ class DataFrame:
             case _:
                 raise NotImplementedError()
         self.columns = columns
-        self.data = data
         self.dtypes = [DTYPES[least_common_type(column)] for column in data]
+        self.data = [[TYPE_CONVERTERS[t](x) for x in column] for column, t in zip(data, self.dtypes)]
         self.shape = (len(columns), len(data[0]))
 
     def __repr__(self):

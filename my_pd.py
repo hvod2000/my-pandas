@@ -1,5 +1,6 @@
 import math
 import pathlib
+from itertools import starmap
 from collections.abc import Iterable
 
 
@@ -67,7 +68,7 @@ def guess_type(s: str):
     return typ
 
 
-def stringify_elements(elements: Iterable, typ: Dtype = DTYPES[object]):
+def stringify_column(elements: Iterable, typ: Dtype = DTYPES[object]):
     if typ == DTYPES[float]:
         width = min(6, max(len(str(x).split(".")[1]) for x in elements))
         elems = [f"{x:.{width}f}" for x in elements]
@@ -95,8 +96,8 @@ class Series:
         self.data = [TYPE_CONVERTERS[self.dtype](x) for x in data]
 
     def __repr__(self):
-        indexes = stringify_elements(range(len(self.data)))
-        values = stringify_elements(self.data, self.dtype)
+        indexes = stringify_column(range(len(self.data)))
+        values = stringify_column(self.data, self.dtype)
         return (
             "".join("    ".join(row) + "\n" for row in zip(indexes, values))
             + (f"Name: {self.name}, " if self.name != None else "")
@@ -124,7 +125,7 @@ class DataFrame:
         self.shape = (len(columns), len(data[0]))
 
     def __repr__(self):
-        content = [[str(cell) for cell in col] for col in self.data]
+        content = list(starmap(stringify_column, zip(self.data, self.dtypes)))
         # HACK#1: bug of small padding between string columns requires
         #         small paddings between inside header if dtype is obj
         widths = [

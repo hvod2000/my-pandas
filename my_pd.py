@@ -1,4 +1,5 @@
 import math
+import pathlib
 from collections.abc import Iterable
 
 SUPPORTED_TYPES = {
@@ -89,3 +90,13 @@ class DataFrame:
             return Series(self.data[i], dtype=self.dtype[i], name=key)
         except ValueError:
             raise KeyError(key)
+
+
+def read_csv( filepath: str | pathlib.Path, **kwargs):
+    if kwargs:
+        raise NotImplementedError()
+    rows = pathlib.Path(filepath).read_text().strip().split("\n")
+    rows = [r.split(",") for r in rows]
+    header, data = rows[0], rows[1:]
+    d = {h:[row[i] for row in data] for i, h in enumerate(header)}
+    return DataFrame(d)

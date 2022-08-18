@@ -106,6 +106,9 @@ class Series:
             + f"dtype: {self.dtype}"
         )
 
+    def abs(self):
+        return Series([abs(x) for x in self.data], dtype=self.dtype)
+
     def max(self):
         return max(self.data, default=math.nan)
 

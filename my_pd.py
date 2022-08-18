@@ -72,16 +72,18 @@ class DataFrame:
 
     def __repr__(self):
         content = [[str(cell) for cell in col] for col in self.data]
+        # HACK#1: bug of small padding between string columns requires
+        #         small paddings between inside header if dtype is obj
         widths = [
-            max(max(map(len, content)), len(head))
-            for head, content in zip(self.columns, content)
+            max(max(map(len, content)), len(head) - (typ == object)) + 2
+            for head, content, typ in zip(self.columns, content, self.dtype)
         ]
         header = (head.rjust(w) for w, head in zip(widths, self.columns))
         index_width = len(str(self.shape[1]))
-        result = [" " * index_width + "  " + "  ".join(header)]
+        result = [" " * index_width + "".join(header)]
         for i, row in enumerate(zip(*content)):
             row = (cell.rjust(w) for w, cell in zip(widths, row))
-            result.append(str(i).rjust(index_width) + "  " + "  ".join(row))
+            result.append(str(i).rjust(index_width) + "".join(row))
         return "\n".join(result)
 
     def __getitem__(self, key):

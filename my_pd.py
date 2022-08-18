@@ -34,17 +34,18 @@ class Series:
         copy=None,
         fastpath=None,
     ):
-        if any(field != None for field in (index, name, copy, fastpath)):
+        if any(field != None for field in (index, copy, fastpath)):
             raise NotImplementedError()
-        self.data = tuple(data)
+        self.name = name
+        self.data = tuple(data) if not isinstance(data, str) else (data,)
         self.dtype = dtype if dtype != None else least_common_supertype(data)
 
     def __repr__(self):
         columns = map(stringify_elements, (range(len(self.data)), self.data))
         return (
-            "\n".join("    ".join(row) for row in zip(*columns))
-            + "\ndtype: "
-            + SUPPORTED_TYPES[self.dtype]
+            "".join("    ".join(row) + "\n" for row in zip(*columns))
+            + (f"Name: {self.name}, " if self.name != None else "")
+            + f"dtype: {SUPPORTED_TYPES[self.dtype]}"
         )
 
 

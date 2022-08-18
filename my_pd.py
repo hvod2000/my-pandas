@@ -67,8 +67,12 @@ def guess_type(s: str):
     return typ
 
 
-def stringify_elements(elements: Iterable):
-    elems = tuple(map(str, elements))
+def stringify_elements(elements: Iterable, typ: Dtype = DTYPES[object]):
+    if typ == DTYPES[float]:
+        width = min(6, max(len(str(x).split(".")[1]) for x in elements))
+        elems = [f"{x:.{width}f}" for x in elements]
+    else:
+        elems = tuple(map(str, elements))
     width = max(map(len, elems))
     return [x.rjust(width) for x in elems]
 
@@ -92,7 +96,7 @@ class Series:
 
     def __repr__(self):
         indexes = stringify_elements(range(len(self.data)))
-        values = stringify_elements(self.data)
+        values = stringify_elements(self.data, self.dtype)
         return (
             "".join("    ".join(row) + "\n" for row in zip(indexes, values))
             + (f"Name: {self.name}, " if self.name != None else "")

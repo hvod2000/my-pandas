@@ -16,6 +16,13 @@ PARSERS = {
     bool: lambda s: (s == "True"),
 }
 
+TYPE_CONVERTERS = {
+    object: lambda x: x,
+    float: lambda s: (math.nan if s == None else float(s)),
+    int: int,
+    bool: bool,
+}
+
 
 def least_common_superclass(types):
     if len(types) == 1:
@@ -65,9 +72,10 @@ class Series:
     ):
         if any(field != None for field in (index, copy, fastpath)):
             raise NotImplementedError()
+        data = tuple(data) if not isinstance(data, str) else (data,)
         self.name = name
-        self.data = tuple(data) if not isinstance(data, str) else (data,)
         self.dtype = dtype if dtype != None else least_common_type(data)
+        self.data = [TYPE_CONVERTERS[self.dtype](x) for x in data]
 
     def __repr__(self):
         columns = map(stringify_elements, (range(len(self.data)), self.data))

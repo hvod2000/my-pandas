@@ -9,6 +9,13 @@ SUPPORTED_TYPES = {
     bool: "bool",
 }
 
+PARSERS = {
+    object: lambda s: s,
+    float: lambda s: (math.nan if s == "None" else float(s)),
+    int: int,
+    bool: lambda s: (s == "True"),
+}
+
 
 def least_common_superclass(types):
     if len(types) == 1:
@@ -123,7 +130,7 @@ def read_csv(filepath: str | pathlib.Path, **kwargs):
     data = [[r[i] for r in data] for i in range(len(header))]
     dtypes = [least_common_superclass(set(map(guess_type, r))) for r in data]
     d = {
-        header: list(map(str if typ is object else typ, column))
+        header: list(map(PARSERS[typ], column))
         for header, typ, column in zip(header, dtypes, data)
     }
     return DataFrame(d)

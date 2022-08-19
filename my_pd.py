@@ -112,6 +112,17 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
+    def to_string(self, *, index=True, **kwargs):
+        for k in kwargs:
+            raise NotImplementedError("parameter {k} is not supported")
+        elems = tuple(map(str, self.data))
+        width = max(map(len, elems))
+        lines = [x.rjust(width) for x in elems]
+        if index:
+            index_width = len(str(len(lines) - 1))
+            lines = [f"{i:<{index_width}}    {x}" for i, x in enumerate(lines)]
+        return "\n".join(lines)
+
 
 class DataFrame:
     def __init__(

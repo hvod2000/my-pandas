@@ -55,6 +55,11 @@ def least_common_type(elements: Iterable):
     return least_common_superclass(types(elements))
 
 
+def right_aligned(elements: list[str]):
+    width = max(map(len, elements))
+    return [x.rjust(width) for x in elements]
+
+
 def guess_type(s: str):
     if s in ("True", "False"):
         return bool
@@ -115,12 +120,19 @@ class Series:
     def to_string(self, *, index=True, **kwargs):
         for k in kwargs:
             raise NotImplementedError("parameter {k} is not supported")
-        elems = tuple(map(str, self.data))
-        width = max(map(len, elems))
-        lines = [x.rjust(width) for x in elems]
+        if self.dtype in (DTYPES[int], DTYPES[float]):
+            width = min(6, max(len(f"{x}.".split(".")[1]) for x in self.data))
+            lines = [f"{x: .{width}f}" for x in self.data]
+            if any(len(x) >= 12 for x in lines):
+                lines = [f"{x: e}" for x in self.data]
+        else:
+            lines = [f" {x}" for x in self.data]
+        lines = right_aligned(lines)
         if index:
             index_width = len(str(len(lines) - 1))
-            lines = [f"{i:<{index_width}}    {x}" for i, x in enumerate(lines)]
+            lines = [f"{i:<{index_width}}   {x}" for i, x in enumerate(lines)]
+        elif all(line.startswith(" ") for line in lines):
+            lines = [line[1:] for line in lines]
         return "\n".join(lines)
 
 

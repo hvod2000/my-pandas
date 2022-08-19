@@ -126,7 +126,7 @@ class Series:
             if any(len(x) >= 12 for x in lines):
                 lines = [f"{x: e}" for x in self.data]
         else:
-            lines = [f" {x}" for x in self.data]
+            lines = [" " + (x if len(x) < 50 else x[:46] + "...") for x in map(str, self.data)]
         lines = right_aligned(lines)
         if index:
             index_width = len(str(len(lines) - 1))

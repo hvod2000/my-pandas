@@ -117,7 +117,7 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
-    def to_string(self, *, index=True, dtype=False, name=False, **kwargs):
+    def to_string(self, *, index=True, length=False, dtype=False, name=False, **kwargs):
         for k in kwargs:
             raise NotImplementedError(
                 f'keyword parameter "{k}" is not supported'
@@ -139,10 +139,12 @@ class Series:
         elif all(line.startswith(" ") for line in lines):
             lines = [line[1:] for line in lines]
         last_line = (
-            (f"Name: {self.name}, " if name and self.name else "")
+            "\n"
+            + (f"Name: {self.name}, " if name and self.name else "")
+            + (f"Length: {len(self.data)}, " if length else "")
             + (f"dtype: {self.dtype}, " if dtype else "")
         )[:-2]
-        return "\n".join(lines) + ("\n" + last_line if last_line else "")
+        return "\n".join(lines) + last_line
 
 
 class DataFrame:

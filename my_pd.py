@@ -117,14 +117,12 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
-    def to_string(self, *, buf=None, na_rep="NaN", float_format=None, header=True, index=True, length=False, dtype=False, name=False, max_rows=None, min_rows=None, **kwargs):
+    def to_string(self,
+            buf=None, na_rep="NaN", float_format=None, header=True, index=True,
+            length=False, dtype=False, name=False, max_rows=None, min_rows=None):
         # HACK#4: It looks like the "header" parameter is just ignored...
         #         I can't find any information about what it does
         #         and why it's needed
-        for k in kwargs:
-            raise NotImplementedError(
-                f'keyword parameter "{k}" is not supported'
-            )
         if self.dtype == DTYPES[float] and float_format is not None:
             lines = [na_rep if math.isnan(x) else float_format(x) for x in self.data]
         elif self.dtype in (DTYPES[int], DTYPES[float]):

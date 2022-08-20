@@ -117,15 +117,6 @@ class Series:
         self.data = [TYPE_CONVERTERS[self.dtype](x) for x in data]
         self.index = indexes
 
-    def __repr__(self):
-        indexes = stringify_column(range(len(self.data)))
-        values = stringify_column(self.data, self.dtype)
-        return (
-            "".join("    ".join(row) + "\n" for row in zip(indexes, values))
-            + (f"Name: {self.name}, " if self.name != None else "")
-            + f"dtype: {self.dtype}"
-        )
-
     def abs(self):
         return Series([abs(x) for x in self.data], dtype=self.dtype)
 
@@ -182,13 +173,18 @@ class Series:
             ]
         last_line = (
             "\n"
-            + (f"Name: {self.name}, " if name and self.name else "")
+            + (f"Name: {self.name}, " if name and self.name != None else "")
             + (f"Length: {len(self.data)}, " if length else "")
             + (f"dtype: {self.dtype}, " if dtype else "")
         )[:-2]
         return (buf.write if buf else lambda x: x)(
             "\n".join(lines) + last_line
         )
+
+    def __repr__(self):
+        if len(self.data) <= 60:
+            return self.to_string(name=True, dtype=True)
+        return self.to_string(name=True, dtype=True, length=True, max_rows=10)
 
 
 class DataFrame:

@@ -117,9 +117,9 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
-    def to_string(self, *, index=True, **kwargs):
+    def to_string(self, *, index=True, dtype=False, **kwargs):
         for k in kwargs:
-            raise NotImplementedError("parameter {k} is not supported")
+            raise NotImplementedError("keyword parameter {k} is not supported")
         if self.dtype in (DTYPES[int], DTYPES[float]):
             width = min(6, max(len(f"{x}.".split(".")[1]) for x in self.data))
             lines = [f"{x: .{width}f}" for x in self.data]
@@ -133,7 +133,8 @@ class Series:
             lines = [f"{i:<{index_width}}   {x}" for i, x in enumerate(lines)]
         elif all(line.startswith(" ") for line in lines):
             lines = [line[1:] for line in lines]
-        return "\n".join(lines)
+        last_line = f"dtype: {self.dtype}" if dtype else ""
+        return "\n".join(lines) + ("\n" + last_line if last_line else "")
 
 
 class DataFrame:

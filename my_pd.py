@@ -145,6 +145,8 @@ class Series:
             + (f"dtype: {self.dtype}, " if dtype else "")
         )[:-2]
         if max_rows != None and len(lines) > max_rows:
+            # HACK#2: in order to ignore lowest bit of max_rows we exceed it
+            # HACK#3: lower bit of max_rows is ignored
             lines[max_rows//2:-(max_rows//2)] = ["..".rjust(len(lines[0]))]
         return "\n".join(lines) + last_line
 

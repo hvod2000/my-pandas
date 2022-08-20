@@ -119,7 +119,9 @@ class Series:
 
     def to_string(self, *, index=True, dtype=False, **kwargs):
         for k in kwargs:
-            raise NotImplementedError("keyword parameter {k} is not supported")
+            raise NotImplementedError(
+                f'keyword parameter "{k}" is not supported'
+            )
         if self.dtype in (DTYPES[int], DTYPES[float]):
             width = min(6, max(len(f"{x}.".split(".")[1]) for x in self.data))
             lines = [f"{x: .{width}f}" for x in self.data]

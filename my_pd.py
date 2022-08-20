@@ -117,7 +117,7 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
-    def to_string(self, *, na_rep="NaN", float_format=None, index=True, length=False, dtype=False, name=False, max_rows=None, min_rows=None, **kwargs):
+    def to_string(self, *, buf=None, na_rep="NaN", float_format=None, index=True, length=False, dtype=False, name=False, max_rows=None, min_rows=None, **kwargs):
         for k in kwargs:
             raise NotImplementedError(
                 f'keyword parameter "{k}" is not supported'
@@ -153,7 +153,7 @@ class Series:
             + (f"Length: {len(self.data)}, " if length else "")
             + (f"dtype: {self.dtype}, " if dtype else "")
         )[:-2]
-        return "\n".join(lines) + last_line
+        return (buf.write if buf else lambda x:x)("\n".join(lines) + last_line)
 
 
 class DataFrame:

@@ -117,7 +117,7 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
-    def to_string(self, *, index=True, dtype=False, **kwargs):
+    def to_string(self, *, index=True, dtype=False, name=False, **kwargs):
         for k in kwargs:
             raise NotImplementedError(
                 f'keyword parameter "{k}" is not supported'
@@ -128,14 +128,20 @@ class Series:
             if any(len(x) >= 12 for x in lines):
                 lines = [f"{x: e}" for x in self.data]
         else:
-            lines = [" " + (x if len(x) < 50 else x[:46] + "...") for x in map(str, self.data)]
+            lines = [
+                " " + (x if len(x) < 50 else x[:46] + "...")
+                for x in map(str, self.data)
+            ]
         lines = right_aligned(lines)
         if index:
             index_width = len(str(len(lines) - 1))
             lines = [f"{i:<{index_width}}   {x}" for i, x in enumerate(lines)]
         elif all(line.startswith(" ") for line in lines):
             lines = [line[1:] for line in lines]
-        last_line = f"dtype: {self.dtype}" if dtype else ""
+        last_line = (
+            (f"Name: {self.name}, " if name and self.name else "")
+            + (f"dtype: {self.dtype}, " if dtype else "")
+        )[:-2]
         return "\n".join(lines) + ("\n" + last_line if last_line else "")
 
 

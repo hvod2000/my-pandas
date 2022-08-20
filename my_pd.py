@@ -117,12 +117,14 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
-    def to_string(self, *, index=True, length=False, dtype=False, name=False, max_rows=None, min_rows=None, **kwargs):
+    def to_string(self, *, float_format=None, index=True, length=False, dtype=False, name=False, max_rows=None, min_rows=None, **kwargs):
         for k in kwargs:
             raise NotImplementedError(
                 f'keyword parameter "{k}" is not supported'
             )
-        if self.dtype in (DTYPES[int], DTYPES[float]):
+        if self.dtype == DTYPES[float] and float_format is not None:
+            lines = list(map(float_format, self.data))
+        elif self.dtype in (DTYPES[int], DTYPES[float]):
             width = min(6, max(len(f"{x}.".split(".")[1]) for x in self.data))
             lines = [f"{x: .{width}f}" for x in self.data]
             if any(len(x) >= 12 for x in lines):

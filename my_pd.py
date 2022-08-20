@@ -117,7 +117,7 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
-    def to_string(self, *, index=True, length=False, dtype=False, name=False, **kwargs):
+    def to_string(self, *, index=True, length=False, dtype=False, name=False, max_rows=None, **kwargs):
         for k in kwargs:
             raise NotImplementedError(
                 f'keyword parameter "{k}" is not supported'
@@ -144,6 +144,8 @@ class Series:
             + (f"Length: {len(self.data)}, " if length else "")
             + (f"dtype: {self.dtype}, " if dtype else "")
         )[:-2]
+        if max_rows != None and len(lines) > max_rows:
+            lines[max_rows//2:-(max_rows//2)] = ["..".rjust(len(lines[0]))]
         return "\n".join(lines) + last_line
 
 

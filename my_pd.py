@@ -123,6 +123,17 @@ class Series:
     def max(self):
         return max(self.data, default=math.nan)
 
+    def min(self):
+        return min(self.data, default=math.nan)
+
+    def mean(self):
+        return sum(self.data) / len(self.data)
+
+    def std(self, ddof=1):
+        mean = self.mean()
+        error = sum((x-mean)**2 for x in self.data)
+        return (error/(len(self.data)-ddof))**0.5
+
     def to_string(
         self,
         buf=None,

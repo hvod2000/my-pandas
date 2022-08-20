@@ -56,8 +56,15 @@ def least_common_type(elements: Iterable):
 
 
 def right_aligned(elements: list[str]):
+    elements = list(elements)
     width = max(map(len, elements))
     return [x.rjust(width) for x in elements]
+
+
+def left_aligned(elements: list[str]):
+    elements = list(elements)
+    width = max(map(len, elements))
+    return [x.ljust(width) for x in elements]
 
 
 def guess_type(s: str):
@@ -97,10 +104,18 @@ class Series:
     ):
         if any(field != None for field in (index, copy, fastpath)):
             raise NotImplementedError()
+        if isinstance(data, dict):
+            indexes, data = tuple(data.keys()), tuple(data.values())
+        elif not isinstance(data, Iterable) or isinstance(data, str):
+            data, indexes = (data,), (0,)
+        else:
+            data = tuple(data)
+            indexes = tuple(range(len(data)))
         data = tuple(data) if not isinstance(data, str) else (data,)
         self.name = name
         self.dtype = DTYPES.get(dtype or least_common_type(data), dtype)
         self.data = [TYPE_CONVERTERS[self.dtype](x) for x in data]
+        self.index = indexes
 
     def __repr__(self):
         indexes = stringify_column(range(len(self.data)))
@@ -152,8 +167,8 @@ class Series:
             ]
         lines = right_aligned(lines)
         if index:
-            index_width = len(str(len(lines) - 1))
-            lines = [f"{i:<{index_width}}   {x}" for i, x in enumerate(lines)]
+            indexes = left_aligned(map(str, self.index))
+            lines = [f"{i}   {x}" for i, x in zip(indexes, lines)]
         elif all(line.startswith(" ") for line in lines):
             lines = [line[1:] for line in lines]
         if max_rows != None and len(lines) > max_rows:
